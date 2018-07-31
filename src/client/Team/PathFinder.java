@@ -8,12 +8,13 @@ class PathFinder {
     private static final PathFinder pathfinder= new PathFinder();
     private int[][] delta = {{0, 1}, {-1, 0}, {0, -1}, {1, 0}};
     private Game game;
-    private Map<Cell, Set<Cell>> graph;
+    private Map<Cell, Map<Cell, Integer>> graph;
     private int oppscore;
     private int myscore;
     private boolean[][] poison = new boolean[50][50];
+    private int INF = Integer.MAX_VALUE;
     private PathFinder() {
-        this.graph = new HashMap<Cell, Set<Cell>>();
+        this.graph = new HashMap<Cell, Map<Cell, Integer>>();
     }
 
     void setGame(Game game) {
@@ -24,13 +25,14 @@ class PathFinder {
     static PathFinder getPathFinder() {
         return pathfinder;
     }
+
     private void init(Game game) {
         Cell[][] map = game.getMap();
 
         for(int i=0; i<game.getNumberOfRows(); i++) {
             for(int j=0; j<game.getNumberOfColumns(); j++) {
                 Cell tmp = map[i][j];
-                this.graph.put(tmp, new HashSet<>());
+                this.graph.put(tmp, new HashMap<>());
                 for(int k=0; k<4; k++) {
                     int x = i + delta[k][0];
                     int y = j + delta[k][1];
@@ -40,7 +42,7 @@ class PathFinder {
                             && y < game.getNumberOfColumns()
                             && ((tmp.hasLadder() || !map[x][y].hasWall()) || (tmp.hasWall()))
                             ) {
-                        this.graph.get(tmp).add(map[x][y]);
+                        this.graph.get(tmp).put(map[x][y], 1);
                     }
                 }
             }
@@ -62,7 +64,7 @@ class PathFinder {
         this.oppscore = game.getOppScore();
         this.myscore = game.getMyScore();
     }
-    private Cell bfsCheese() {
+    private Cell bfsCheese(Cell dist) {
         Cell[][] anc = new Cell[game.getNumberOfRows()][game.getNumberOfColumns()];
         boolean[][] visit = new boolean[game.getNumberOfRows()][game.getNumberOfColumns()];
         Queue<Cell> q = new LinkedList<Cell>();
@@ -72,10 +74,10 @@ class PathFinder {
         while(!q.isEmpty()) {
             node = q.poll();
             assert node != null;
-            if(node.hasCheese() && !poison[node.getRow()][node.getCol()]) {
+            if(node.equals(dist)) {
                 break;
             }
-            for(Cell tmp : graph.get(node)) {
+            for(Cell tmp : graph.get(node).keySet()) {
                 if(!visit[tmp.getRow()][tmp.getCol()] && tmp.getRatInside() == null) {
                     visit[tmp.getRow()][tmp.getCol()] = true;
                     q.add(tmp);
@@ -99,8 +101,48 @@ class PathFinder {
         }
         return null;
     }
+    private Cell dijkstra(Cell str) {
+        Map<Cell, Integer> dis = new HashMap<Cell, Integer>();
+        Map<Cell, Boolean> mark = new HashMap<Cell, Boolean>();
+        dis.put(str, 0);
+        mark.put(str, false);
+        for(Cell Tmp : graph.keySet()) {
+            if(Tmp != str) {
+                dis.put(Tmp, INF);
+                mark.put(Tmp, false);
+            }
+        }
+        for(int rep = 0; rep<graph.size(); rep++) {
+            Cell u = null;
+            int du = INF;
+            for(Cell Tmp : graph.keySet()) {
+                if(!mark.get(Tmp) && dis.get(Tmp) <= du) {
+                    u = Tmp;
+                    du = dis.get(Tmp);
+                }
+            }
+            mark.put(u, true);
+            for(Cell tmp : graph.keySet()) {
+                if(graph.get(u).keySet().contains(tmp)) {
+                    dis.put(tmp, Math.min(dis.get(tmp), dis.get(u) + graph.get(u).get(tmp)));
+                }
+            }
+        }
+        Cell cheese = null;
+        int dc = INF;
+        for(Cell tmp : dis.keySet()) {
+            if(tmp.hasCheese() && dis.get(tmp) < dc && !poison[tmp.getRow()][tmp.getCol()]) {
+                cheese = tmp;
+                dc = dis.get(tmp);
+            }
+        }
+        return cheese;
+    }
+
     void nextMove() {
-        Cell next = bfsCheese();
+        Cell cheese = dijkstra(game.getMyRat().getCell());
+        System.out.println("the found cell is : " + cheese);
+        Cell next = bfsCheese(cheese);
         if(next != null) {
             int di = next.getRow() - game.getMyRat().getCell().getRow();
             int dj = next.getCol() - game.getMyRat().getCell().getCol();
