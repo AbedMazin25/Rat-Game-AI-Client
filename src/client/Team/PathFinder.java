@@ -5,7 +5,7 @@ import Game.*;
 import java.util.*;
 
 class PathFinder {
-    private static final PathFinder pathfinder= new PathFinder();
+    private static final PathFinder pathfinder = new PathFinder();
     private int[][] delta = {{0, 1}, {-1, 0}, {0, -1}, {1, 0}};
     private Game game;
     private Map<Cell, Map<Cell, Integer>> graph;
@@ -13,12 +13,19 @@ class PathFinder {
     private int myscore;
     private boolean[][] poison = new boolean[50][50];
     private int INF = Integer.MAX_VALUE;
+    private ArrayList<Set<Cell>> sclusters;
+    private Map<Cell, Integer> clusters;
+    private int[][] clusterIndeces;
+
     private PathFinder() {
         this.graph = new HashMap<Cell, Map<Cell, Integer>>();
+        this.sclusters = new ArrayList<>();
+        this.clusters = new HashMap<Cell, Integer>();
     }
 
     void setGame(Game game) {
         this.game = game;
+        this.clusterIndeces = new int[game.getNumberOfRows()][game.getNumberOfColumns()];
         init(game);
     }
 
@@ -28,7 +35,7 @@ class PathFinder {
 
     private void init(Game game) {
         Cell[][] map = game.getMap();
-
+        this.clustering();
         for(int i=0; i<game.getNumberOfRows(); i++) {
             for(int j=0; j<game.getNumberOfColumns(); j++) {
                 Cell tmp = map[i][j];
@@ -42,7 +49,11 @@ class PathFinder {
                             && y < game.getNumberOfColumns()
                             && ((tmp.hasLadder() || !map[x][y].hasWall()) || (tmp.hasWall()))
                             ) {
-                        this.graph.get(tmp).put(map[x][y], 1);
+                        int w = 1;
+                        if(clusterIndeces[tmp.getRow()][tmp.getCol()] != clusterIndeces[x][y]) {
+                            w *= 200;
+                        }
+                        this.graph.get(tmp).put(map[x][y], w);
                     }
                 }
             }
@@ -101,6 +112,54 @@ class PathFinder {
         }
         return null;
     }
+    private LinkedList<Cell> fill() {
+        LinkedList<Cell> tmp = new LinkedList<Cell>();
+        for(int i=0; i<game.getNumberOfRows(); i++) {
+            for(int j=0; j<game.getNumberOfColumns(); j++) {
+                tmp.add(game.getMap()[i][j]);
+            }
+        }
+        return tmp;
+    }
+    private void clustering() {
+        Queue<Cell> que = new LinkedList();
+        Queue<Cell> cells = fill();
+        int clusterIndex = 0;
+        boolean[][] visit = new boolean[game.getNumberOfRows()][game.getNumberOfColumns()];
+        while(!cells.isEmpty()) {
+            System.out.println("size of cell " + cells.size() + "-------");
+            this.sclusters.add(new HashSet<>());
+            Cell first = cells.peek();
+            que.add(first);
+            visit[first.getRow()][first.getCol()] = true;
+            while (!que.isEmpty()) {
+                System.out.println("________________");
+                Cell tmp;
+                tmp = que.poll();
+                for (int d = 0; d < 4; d++) {
+                    int i = tmp.getRow() + delta[d][0];
+                    int j = tmp.getCol() + delta[d][1];
+                    if (i < game.getNumberOfRows() &&
+                            j < game.getNumberOfColumns() &&
+                            j >= 0 &&
+                            i >= 0 &&
+                            !visit[i][j]
+                            && ((tmp.hasWall() && game.getMap()[i][i].hasWall()) || (tmp.hasLadder() && game.getMap()[i][j].hasWall()) ||
+                            (tmp.hasWall() && game.getMap()[i][j].hasLadder())) || (!tmp.hasWall() && !game.getMap()[i][i].hasWall())
+                            ) {
+                        que.add(game.getMap()[i][j]);
+                        visit[i][j] = true;
+                        this.clusterIndeces[i][j] = clusterIndex;
+                        this.clusters.put(game.getMap()[i][j], clusterIndex);
+                        this.sclusters.get(clusterIndex).add(game.getMap()[i][j]);
+                        cells.remove(game.getMap()[i][j]);
+                    }
+                }
+            }
+            clusterIndex++;
+        }
+    }
+
     private Cell dijkstra(Cell str) {
         Map<Cell, Integer> dis = new HashMap<Cell, Integer>();
         Map<Cell, Boolean> mark = new HashMap<Cell, Boolean>();
