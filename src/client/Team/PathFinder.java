@@ -2,7 +2,9 @@ package client.Team;
 
 import Game.*;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 class PathFinder {
     private static final PathFinder pathfinder = new PathFinder();
@@ -33,9 +35,34 @@ class PathFinder {
         return pathfinder;
     }
 
+    private void drawCluster(){
+
+        Random rand = new Random();
+        for(Set<Cell> sCell: sclusters){
+
+
+
+            int r = rand.nextInt(256);
+            int g = rand.nextInt(256);
+            int b = rand.nextInt(256);
+
+            TeamAI.debuger.addColor(sCell, new Color(r, g, b));
+        }
+    }
+
+
+    private Color pathColor;
+    private void drawPath(List<Cell> list){
+        TeamAI.debuger.clear();
+        TeamAI.debuger.addColor(list, pathColor);
+    }
+
+
     private void init(Game game) {
         Cell[][] map = game.getMap();
         this.clustering();
+//        this.drawCluster();
+
         for(int i=0; i<game.getNumberOfRows(); i++) {
             for(int j=0; j<game.getNumberOfColumns(); j++) {
                 Cell tmp = map[i][j];
@@ -58,6 +85,14 @@ class PathFinder {
                 }
             }
         }
+
+
+        Random rand = new Random();
+        int r = rand.nextInt(256);
+        int g = rand.nextInt(256);
+        int b = rand.nextInt(256);
+
+        this.pathColor = new Color(r, g, b);
     }
 
     boolean[][] getPoison() {
@@ -96,10 +131,13 @@ class PathFinder {
                 }
             }
         }
+        List<Cell> list = new LinkedList<Cell>();
+
         if(node != null) {
             Cell ja = node;
             Cell pre = node;
             while (ja != game.getMyRat().getCell()) {
+                list.add(pre);
                 pre = anc[ja.getRow()][ja.getCol()];
                 if (pre == game.getMyRat().getCell()) {
                     pre = ja;
@@ -108,6 +146,8 @@ class PathFinder {
                     ja = pre;
                 }
             }
+
+            this.drawPath(list);
             return pre;
         }
         return null;
@@ -126,35 +166,45 @@ class PathFinder {
         Queue<Cell> cells = fill();
         int clusterIndex = 0;
         boolean[][] visit = new boolean[game.getNumberOfRows()][game.getNumberOfColumns()];
+
         while(!cells.isEmpty()) {
-            System.out.println("size of cell " + cells.size() + "-------");
+
             this.sclusters.add(new HashSet<>());
             Cell first = cells.peek();
             que.add(first);
             visit[first.getRow()][first.getCol()] = true;
+            cells.remove(game.getMap()[first.getRow()][first.getCol()]);
+            this.clusterIndeces[first.getRow()][first.getCol()] = clusterIndex;
+            this.clusters.put(game.getMap()[first.getRow()][first.getCol()], clusterIndex);
+            this.sclusters.get(clusterIndex).add(game.getMap()[first.getRow()][first.getCol()]);
+
             while (!que.isEmpty()) {
-                System.out.println("________________");
-                Cell tmp;
-                tmp = que.poll();
+                Cell tmp = que.poll();
+
                 for (int d = 0; d < 4; d++) {
                     int i = tmp.getRow() + delta[d][0];
                     int j = tmp.getCol() + delta[d][1];
-                    if (i < game.getNumberOfRows() &&
+                    if (    i < game.getNumberOfRows() &&
                             j < game.getNumberOfColumns() &&
                             j >= 0 &&
                             i >= 0 &&
                             !visit[i][j]
-                            && ((tmp.hasWall() && game.getMap()[i][i].hasWall()) || (tmp.hasLadder() && game.getMap()[i][j].hasWall()) ||
-                            (tmp.hasWall() && game.getMap()[i][j].hasLadder())) || (!tmp.hasWall() && !game.getMap()[i][i].hasWall())
+                            &&  (
+                                 (!tmp.hasWall() && !game.getMap()[i][j].hasWall()) || tmp.hasLadder() || (tmp.hasWall() && game.getMap()[i][j].hasWall()) || game.getMap()[i][j].hasLadder()
+                                )
                             ) {
+
+
                         que.add(game.getMap()[i][j]);
                         visit[i][j] = true;
                         this.clusterIndeces[i][j] = clusterIndex;
                         this.clusters.put(game.getMap()[i][j], clusterIndex);
                         this.sclusters.get(clusterIndex).add(game.getMap()[i][j]);
                         cells.remove(game.getMap()[i][j]);
+
                     }
                 }
+
             }
             clusterIndex++;
         }
@@ -200,7 +250,6 @@ class PathFinder {
 
     void nextMove() {
         Cell cheese = dijkstra(game.getMyRat().getCell());
-        System.out.println("the found cell is : " + cheese);
         Cell next = bfsCheese(cheese);
         if(next != null) {
             int di = next.getRow() - game.getMyRat().getCell().getRow();
