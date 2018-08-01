@@ -1,7 +1,7 @@
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
-.idea
+.idea/
 *.iml
 # User-specific stuff
 .idea/**/workspace.xml
@@ -96,3 +96,18 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+
+.DS_Store
+.idea/
+Agent.iml
+AgentGit.iml
+LICENSE
+build/
+compile.sh
+launch.sh
+precompute.sh
+src/.DS_Store
+src/adf/.DS_Store
+start.sh
+test-results/
