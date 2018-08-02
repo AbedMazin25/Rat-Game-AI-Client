@@ -42,7 +42,7 @@ public class TeamAI extends client.AI {
                   list.add(game.getMap()[i][j]);
             }
         }
-//        TeamAI.debuger.addColor(list, Color.red);
+        TeamAI.debuger.addColor(list, Color.red);
 
         if (game.getTurnNumber() == 0) {
             PathFinder.getPathFinder().setGame(game);

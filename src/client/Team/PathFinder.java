@@ -61,7 +61,7 @@ class PathFinder {
     private void init(Game game) {
         Cell[][] map = game.getMap();
         this.clustering();
-//        this.drawCluster();
+        this.drawCluster();
 
         for(int i=0; i<game.getNumberOfRows(); i++) {
             for(int j=0; j<game.getNumberOfColumns(); j++) {
