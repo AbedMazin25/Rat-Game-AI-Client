@@ -1,18 +1,18 @@
 package client.Team;
 
-import Debuger.Debuger;
+//import Debuger.Debuger;
 import Game.*;
 
-import java.awt.Color;
-import java.util.LinkedList;
-import java.util.List;
+//import java.awt.Color;
+//import java.util.LinkedList;
+//import java.util.List;
 
 
 public class TeamAI extends client.AI {
 
 
-    private boolean initFlag = false;
-    public static Debuger debuger;
+//    public static Debuger debuger;
+
 
 
     @Override
@@ -21,18 +21,18 @@ public class TeamAI extends client.AI {
     }
 
 
-    private void init(Game game){
-        this.debuger = new Debuger(game);
-    }
+//    private void init(Game game){
+//        this.debuger = new Debuger(game);
+//    }
 
     @Override
     public void think(Game game) {
-        if(initFlag != true){
-            init(game);
-            initFlag = true;
+        if(game.getTurnNumber() == 0){
+//            init(game);
+            PathFinder.getPathFinder().setGame(game);
         }
 
-        this.debuger.update();
+//        this.debuger.update();
 
 
 //        List<Cell> list = new LinkedList<Cell>();
@@ -44,9 +44,6 @@ public class TeamAI extends client.AI {
 //        }
 //        TeamAI.debuger.addColor(list, Color.red);
 
-        if (game.getTurnNumber() == 0) {
-            PathFinder.getPathFinder().setGame(game);
-        }
         PathFinder.getPathFinder().poisonWatcher();
         boolean[][] poison = PathFinder.getPathFinder().getPoison();
         if(game.getMyRat().getCell().hasCheese()

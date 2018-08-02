@@ -2,9 +2,9 @@ package client.Team;
 
 import Game.*;
 
-import java.awt.*;
+//import java.awt.*;
 import java.util.*;
-import java.util.List;
+//import java.util.List;
 
 class PathFinder {
     private static final PathFinder pathfinder = new PathFinder();
@@ -14,15 +14,14 @@ class PathFinder {
     private int oppscore;
     private int myscore;
     private boolean[][] poison = new boolean[50][50];
-    private int INF = Integer.MAX_VALUE;
     private ArrayList<Set<Cell>> sclusters;
-    private Map<Cell, Integer> clusters;
+//    private Map<Cell, Integer> clusters;
     private int[][] clusterIndeces;
 
     private PathFinder() {
         this.graph = new HashMap<Cell, Map<Cell, Integer>>();
         this.sclusters = new ArrayList<>();
-        this.clusters = new HashMap<Cell, Integer>();
+//        this.clusters = new HashMap<Cell, Integer>();
     }
 
     void setGame(Game game) {
@@ -35,27 +34,27 @@ class PathFinder {
         return pathfinder;
     }
 
-    private void drawCluster(){
-        System.out.println("the size is : " + sclusters.size() + "___________");
-        Random rand = new Random();
-        for(Set<Cell> sCell: sclusters){
-
-
-
-            int r = rand.nextInt(256);
-            int g = rand.nextInt(256);
-            int b = rand.nextInt(256);
-
-            TeamAI.debuger.addColor(sCell, new Color(r, g, b));
-        }
-    }
-
-
-    private Color pathColor;
-    private void drawPath(List<Cell> list){
-        TeamAI.debuger.clear();
-        TeamAI.debuger.addColor(list, pathColor);
-    }
+//    private void drawCluster(){
+//        System.out.println("the size is : " + sclusters.size() + "___________");
+//        Random rand = new Random();
+//        for(Set<Cell> sCell: sclusters){
+//
+//
+//
+//            int r = rand.nextInt(256);
+//            int g = rand.nextInt(256);
+//            int b = rand.nextInt(256);
+//
+//            TeamAI.debuger.addColor(sCell, new Color(r, g, b));
+//        }
+//    }
+//
+//
+//    private Color pathColor;
+//    private void drawPath(List<Cell> list){
+//        TeamAI.debuger.clear();
+//        TeamAI.debuger.addColor(list, pathColor);
+//    }
 
 
     private void init(Game game) {
@@ -89,13 +88,13 @@ class PathFinder {
             }
         }
 
-
-        Random rand = new Random();
-        int r = rand.nextInt(256);
-        int g = rand.nextInt(256);
-        int b = rand.nextInt(256);
-
-        this.pathColor = new Color(r, g, b);
+//
+//        Random rand = new Random();
+//        int r = rand.nextInt(256);
+//        int g = rand.nextInt(256);
+//        int b = rand.nextInt(256);
+//
+//        this.pathColor = new Color(r, g, b);
     }
 
     boolean[][] getPoison() {
@@ -134,13 +133,13 @@ class PathFinder {
                 }
             }
         }
-        List<Cell> list = new LinkedList<Cell>();
+//        List<Cell> list = new LinkedList<Cell>();
 
         if(node != null) {
             Cell ja = node;
             Cell pre = node;
             while (ja != game.getMyRat().getCell()) {
-                list.add(pre);
+//                list.add(pre);
                 pre = anc[ja.getRow()][ja.getCol()];
                 if (pre == game.getMyRat().getCell()) {
                     pre = ja;
@@ -150,7 +149,7 @@ class PathFinder {
                 }
             }
 
-            this.drawPath(list);
+//            this.drawPath(list);
             return pre;
         }
         return null;
@@ -165,7 +164,8 @@ class PathFinder {
         return tmp;
     }
     private void clustering() {
-        Queue<Cell> que = new LinkedList();
+        Queue<Cell> que;
+        que = new LinkedList();
         Queue<Cell> cells = fill();
         int clusterIndex = 0;
         boolean[][] visit = new boolean[game.getNumberOfRows()][game.getNumberOfColumns()];
@@ -175,16 +175,18 @@ class PathFinder {
             this.sclusters.add(new HashSet<>());
             Cell first = cells.peek();
             que.add(first);
+            assert first != null;
             visit[first.getRow()][first.getCol()] = true;
             cells.remove(game.getMap()[first.getRow()][first.getCol()]);
             this.clusterIndeces[first.getRow()][first.getCol()] = clusterIndex;
-            this.clusters.put(game.getMap()[first.getRow()][first.getCol()], clusterIndex);
+//            this.clusters.put(game.getMap()[first.getRow()][first.getCol()], clusterIndex);
             this.sclusters.get(clusterIndex).add(game.getMap()[first.getRow()][first.getCol()]);
 
             while (!que.isEmpty()) {
                 Cell tmp = que.poll();
 
                 for (int d = 0; d < 4; d++) {
+                    assert tmp != null;
                     int i = tmp.getRow() + delta[d][0];
                     int j = tmp.getCol() + delta[d][1];
                     if (    i < game.getNumberOfRows() &&
@@ -201,7 +203,7 @@ class PathFinder {
                         que.add(game.getMap()[i][j]);
                         visit[i][j] = true;
                         this.clusterIndeces[i][j] = clusterIndex;
-                        this.clusters.put(game.getMap()[i][j], clusterIndex);
+//                        this.clusters.put(game.getMap()[i][j], clusterIndex);
                         this.sclusters.get(clusterIndex).add(game.getMap()[i][j]);
                         cells.remove(game.getMap()[i][j]);
 
@@ -218,6 +220,7 @@ class PathFinder {
         Map<Cell, Boolean> mark = new HashMap<Cell, Boolean>();
         dis.put(str, 0);
         mark.put(str, false);
+        int INF = Integer.MAX_VALUE;
         for(Cell Tmp : graph.keySet()) {
             if(Tmp != str) {
                 dis.put(Tmp, INF);
