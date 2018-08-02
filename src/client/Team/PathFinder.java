@@ -36,7 +36,7 @@ class PathFinder {
     }
 
     private void drawCluster(){
-
+        System.out.println("the size is : " + sclusters.size() + "___________");
         Random rand = new Random();
         for(Set<Cell> sCell: sclusters){
 
@@ -61,7 +61,7 @@ class PathFinder {
     private void init(Game game) {
         Cell[][] map = game.getMap();
         this.clustering();
-        this.drawCluster();
+//        this.drawCluster();
 
         for(int i=0; i<game.getNumberOfRows(); i++) {
             for(int j=0; j<game.getNumberOfColumns(); j++) {
@@ -78,6 +78,9 @@ class PathFinder {
                             ) {
                         int w = 1;
                         if(clusterIndeces[tmp.getRow()][tmp.getCol()] != clusterIndeces[x][y]) {
+                            w *= 200;
+                        }
+                        if(map[x][y].hasWall()) {
                             w *= 200;
                         }
                         this.graph.get(tmp).put(map[x][y], w);

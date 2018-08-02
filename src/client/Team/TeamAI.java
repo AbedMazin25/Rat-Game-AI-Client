@@ -35,14 +35,14 @@ public class TeamAI extends client.AI {
         this.debuger.update();
 
 
-        List<Cell> list = new LinkedList<Cell>();
-        for(int i=0; i<10 ; i++){
-            for(int j=0; j<10; j++){
-                if(i != j)
-                  list.add(game.getMap()[i][j]);
-            }
-        }
-        TeamAI.debuger.addColor(list, Color.red);
+//        List<Cell> list = new LinkedList<Cell>();
+//        for(int i=0; i<10 ; i++){
+//            for(int j=0; j<10; j++){
+//                if(i != j)
+//                  list.add(game.getMap()[i][j]);
+//            }
+//        }
+//        TeamAI.debuger.addColor(list, Color.red);
 
         if (game.getTurnNumber() == 0) {
             PathFinder.getPathFinder().setGame(game);
