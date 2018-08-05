@@ -30,6 +30,8 @@ public class TeamAI extends client.AI {
         if(game.getTurnNumber() == 0){
 //            init(game);
             PathFinder.getPathFinder().setGame(game);
+
+            CheesePicker.getCheesePicker(game).setGraph(PathFinder.getPathFinder().getGraph());
         }
 
 //        this.debuger.update();

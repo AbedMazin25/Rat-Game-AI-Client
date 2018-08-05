@@ -18,6 +18,10 @@ class PathFinder {
 //    private Map<Cell, Integer> clusters;
     private int[][] clusterIndeces;
 
+    Map<Cell, Map<Cell, Integer>> getGraph() {
+        return graph;
+    }
+
     private PathFinder() {
         this.graph = new HashMap<Cell, Map<Cell, Integer>>();
         this.sclusters = new ArrayList<>();
@@ -82,6 +86,7 @@ class PathFinder {
                         if(map[x][y].hasWall()) {
                             w *= 200;
                         }
+                        w = 1;
                         this.graph.get(tmp).put(map[x][y], w);
                     }
                 }
